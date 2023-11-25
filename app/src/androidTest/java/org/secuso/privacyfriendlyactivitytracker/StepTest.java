@@ -33,8 +33,10 @@ import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.rule.GrantPermissionRule;
 
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,6 +46,7 @@ import org.secuso.privacyfriendlyactivitytracker.models.StepCount;
 import org.secuso.privacyfriendlyactivitytracker.persistence.WalkingModePersistenceHelper;
 import org.secuso.privacyfriendlyactivitytracker.services.AbstractStepDetectorService;
 import org.secuso.privacyfriendlyactivitytracker.services.AccelerometerStepDetectorService;
+import org.secuso.privacyfriendlyactivitytracker.tutorial.TutorialActivity;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -53,16 +56,16 @@ import java.util.Calendar;
 public class StepTest {
     final long startTime = Calendar.getInstance().getTimeInMillis();
     @Rule
-    public ActivityScenarioRule<MainActivity> activityRule =
-            new ActivityScenarioRule<>(MainActivity.class);
+    public ActivityScenarioRule<TutorialActivity> activityRule =
+            new ActivityScenarioRule<>(TutorialActivity.class);
     @Rule
     public GrantPermissionRule activityRecognitionPermission = (android.os.Build.VERSION.SDK_INT >= 29 ? GrantPermissionRule.grant(Manifest.permission.ACTIVITY_RECOGNITION) : null);
     @Rule
-    public GrantPermissionRule locationPermission = GrantPermissionRule.grant(Manifest.permission.ACCESS_COARSE_LOCATION);
+    public GrantPermissionRule writeExternalPermission = (android.os.Build.VERSION.SDK_INT < 19 ? GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE) : null);
     @Rule
-    public GrantPermissionRule foregroundServiceHealthPermission = GrantPermissionRule.grant(Manifest.permission.FOREGROUND_SERVICE_HEALTH);
+    public GrantPermissionRule foregroundServicePermission = (android.os.Build.VERSION.SDK_INT >= 34 ? GrantPermissionRule.grant(Manifest.permission.FOREGROUND_SERVICE_HEALTH) : null);
     @Rule
-    public GrantPermissionRule bodySensorsPermission = GrantPermissionRule.grant(Manifest.permission.BODY_SENSORS);
+    public GrantPermissionRule postNotificatuionsPermission = (android.os.Build.VERSION.SDK_INT >= 32 ? GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS) : null);
 
     AccelerometerStepDetectorService sensorService;
     Context context = getApplicationContext();
@@ -85,6 +88,11 @@ public class StepTest {
         sensorEvent.sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         assumeNotNull(sensorEvent.sensor);
         updateIntervalBackup = sharedPref.getString(context.getString(R.string.pref_hw_background_counter_frequency), "3600000");
+        try {
+            onView(withText(R.string.skip)).perform(ViewActions.click());
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     @After

@@ -13,22 +13,23 @@ import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.secuso.privacyfriendlyactivitytracker.activities.MainActivity;
+import org.secuso.privacyfriendlyactivitytracker.tutorial.TutorialActivity;
 
 public class ApplicationTest {
     @Rule
-    public ActivityScenarioRule<MainActivity> activityRule =
-            new ActivityScenarioRule<>(MainActivity.class);
+    public ActivityScenarioRule<TutorialActivity> activityRule =
+            new ActivityScenarioRule<>(TutorialActivity.class);
 
     @Rule
     public GrantPermissionRule activityRecognitionPermission = (android.os.Build.VERSION.SDK_INT >= 29 ? GrantPermissionRule.grant(Manifest.permission.ACTIVITY_RECOGNITION) : null);
     @Rule
-    public GrantPermissionRule foregroundServiceHealthPermission = GrantPermissionRule.grant(Manifest.permission.FOREGROUND_SERVICE_HEALTH);
+    public GrantPermissionRule foregroundServicePermission = (android.os.Build.VERSION.SDK_INT >= 34 ? GrantPermissionRule.grant(Manifest.permission.FOREGROUND_SERVICE_HEALTH) : null);
     @Rule
-    public GrantPermissionRule bodySensorsPermission = GrantPermissionRule.grant(Manifest.permission.BODY_SENSORS);
+    public GrantPermissionRule postNotificatuionsPermission = (android.os.Build.VERSION.SDK_INT >= 32 ? GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS) : null);
 
     @Test
     public void canStartApp() {
+        onView(withText(R.string.skip)).perform(ViewActions.click());
         onView(withText(R.string.day)).perform(ViewActions.click());
         onView(withText(R.string.day)).check(ViewAssertions.matches(ViewMatchers.isSelected()));
     }

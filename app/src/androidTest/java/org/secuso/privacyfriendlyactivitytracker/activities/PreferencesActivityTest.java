@@ -13,6 +13,7 @@ import static org.junit.Assume.assumeTrue;
 import android.Manifest;
 import android.app.Activity;
 
+import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.contrib.DrawerActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.rule.GrantPermissionRule;
@@ -22,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.secuso.privacyfriendlyactivitytracker.R;
 import org.secuso.privacyfriendlyactivitytracker.TestUtils;
+import org.secuso.privacyfriendlyactivitytracker.tutorial.TutorialActivity;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicReference;
@@ -35,19 +37,24 @@ public class PreferencesActivityTest {
     @Rule
     public GrantPermissionRule writeExternalPermission = (android.os.Build.VERSION.SDK_INT < 19 ? GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE) : null);
     @Rule
-    public GrantPermissionRule foregroundServiceHealthPermission = GrantPermissionRule.grant(Manifest.permission.FOREGROUND_SERVICE_HEALTH);
+    public GrantPermissionRule foregroundServicePermission = (android.os.Build.VERSION.SDK_INT >= 34 ? GrantPermissionRule.grant(Manifest.permission.FOREGROUND_SERVICE_HEALTH) : null);
     @Rule
-    public GrantPermissionRule bodySensorsPermission = GrantPermissionRule.grant(Manifest.permission.BODY_SENSORS);
+    public GrantPermissionRule postNotificatuionsPermission = (android.os.Build.VERSION.SDK_INT >= 32 ? GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS) : null);
+
 
     @Rule
-    public ActivityScenarioRule<MainActivity> activityRule =
-            new ActivityScenarioRule<>(MainActivity.class);
+    public ActivityScenarioRule<TutorialActivity> activityRule =
+            new ActivityScenarioRule<>(TutorialActivity.class);
     Activity mActivity;
     private final String tag = getClass().getSimpleName();
 
     @Before
     public void setUp() {
-        activityRule.getScenario().onActivity(activity -> mActivity = activity);
+        try {
+            onView(withText(R.string.skip)).perform(ViewActions.click());
+        } catch (Exception e) {
+            // ignore
+        }
         onView(withId(R.id.drawer_layout)).perform(DrawerActions.open());
         onView(withId(R.id.menu_settings)).perform(click());
     }
