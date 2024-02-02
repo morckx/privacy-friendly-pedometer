@@ -10,16 +10,21 @@ on:
 
 jobs:
   test:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        api-level: [17, 19, 31]
+        api-level: [17, 19, 34]
     steps:
       - name: checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
       - name: Restore Android virtual device
         uses: actions/cache@v4
         id: avd-cache
