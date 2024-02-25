@@ -56,6 +56,10 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+
     applicationVariants.all { variant ->
         variant.outputs.all {
             outputFileName = "pfa-pedometer-${variant.name}-v${variant.versionName}.apk"
